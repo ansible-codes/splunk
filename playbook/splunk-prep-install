@@ -1,9 +1,21 @@
 ---
-- name: Splunk Preparation and Installation
-  hosts: all
+- name: Set SPLUNK_HOME for both the playbook and the system environment
+  hosts: your_target_hosts_group
   vars:
-    SPLUNK_HOME: /app/splunk/
+    SPLUNK_HOME: "/app/splunkforward/"
+    download_username: zk0pqdr
+    download_password: dublin24
   tasks:
+    - name: Print SPLUNK_HOME (just for demonstration purposes)
+      debug:
+        msg: "The SPLUNK_HOME is {{ SPLUNK_HOME }}"
+
+    - name: Ensure SPLUNK_HOME is set in /etc/environment
+      lineinfile:
+        path: /etc/environment
+        line: 'SPLUNK_HOME={{ SPLUNK_HOME }}'
+        state: present
+
     - name: Create directory for install files
       file:
         path: "{{ SPLUNK_HOME }}install-files"
@@ -14,6 +26,9 @@
       get_url:
         url: https://sample/splunkforwardfile/splunk.tar.gz
         dest: "{{ SPLUNK_HOME }}install-files/splunk.tar.gz"
+        url_username: "{{ download_username }}"
+        url_password: "{{ download_password }}"
+        force_basic_auth: yes
 
     - name: Extract splunk.tar.gz
       unarchive:
@@ -25,13 +40,22 @@
       get_url:
         url: https://sample/splunkforwardfile/deploymentclient.conf
         dest: "{{ SPLUNK_HOME }}install-files/deploymentclient.conf"
+        url_username: "{{ download_username }}"
+        url_password: "{{ download_password }}"
+        force_basic_auth: yes
 
     - name: Download log-local.cfg
       get_url:
         url: https://sample/splunkforwardfile/log-local.cfg
         dest: "{{ SPLUNK_HOME }}install-files/log-local.cfg"
+        url_username: "{{ download_username }}"
+        url_password: "{{ download_password }}"
+        force_basic_auth: yes
 
     - name: Download user-seed.conf
       get_url:
-        url: https://sample/splunkforwardfile/user-seed.conf
+        url: https://sample.splunkforwardfile/user-seed.conf
         dest: "{{ SPLUNK_HOME }}install-files/user-seed.conf"
+        url_username: "{{ download_username }}"
+        url_password: "{{ download_password }}"
+        force_basic_auth: yes
