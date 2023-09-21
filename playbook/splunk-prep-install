@@ -1,0 +1,37 @@
+---
+- name: Splunk Preparation and Installation
+  hosts: all
+  vars:
+    SPLUNK_HOME: /app/splunk/
+  tasks:
+    - name: Create directory for install files
+      file:
+        path: "{{ SPLUNK_HOME }}install-files"
+        state: directory
+        mode: '0755'
+
+    - name: Download splunk.tar.gz
+      get_url:
+        url: https://sample/splunkforwardfile/splunk.tar.gz
+        dest: "{{ SPLUNK_HOME }}install-files/splunk.tar.gz"
+
+    - name: Extract splunk.tar.gz
+      unarchive:
+        src: "{{ SPLUNK_HOME }}install-files/splunk.tar.gz"
+        dest: "{{ SPLUNK_HOME }}install-files/"
+        remote_src: yes
+
+    - name: Download deploymentclient.conf
+      get_url:
+        url: https://sample/splunkforwardfile/deploymentclient.conf
+        dest: "{{ SPLUNK_HOME }}install-files/deploymentclient.conf"
+
+    - name: Download log-local.cfg
+      get_url:
+        url: https://sample/splunkforwardfile/log-local.cfg
+        dest: "{{ SPLUNK_HOME }}install-files/log-local.cfg"
+
+    - name: Download user-seed.conf
+      get_url:
+        url: https://sample/splunkforwardfile/user-seed.conf
+        dest: "{{ SPLUNK_HOME }}install-files/user-seed.conf"
