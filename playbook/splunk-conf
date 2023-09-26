@@ -30,4 +30,5 @@
 
     - name: Start Splunk
       shell: source /etc/environment && $SPLUNK/bin/splunk start
+      echo export SPLUNK_HOME=your_splunk_enterprise_directory >> ~/.profile
       become: yes
