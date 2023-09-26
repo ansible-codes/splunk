@@ -1,0 +1,33 @@
+---
+- name: Setup Splunk Forwarder
+  hosts: target_hosts  # Replace this with your target host group or specific hosts
+  tasks:
+
+    - name: Declare SPLUNK environment variable
+      lineinfile:
+        path: /etc/environment
+        line: 'SPLUNK=/app/splunkforwarder/'
+        create: yes
+      become: yes
+
+    - name: Copy deploymentclient.conf to SPLUNK directory
+      copy:
+        src: /app/install/conf/deploymentclient.conf
+        dest: /app/splunkforwarder/etc/system/local/deploymentclient.conf
+      become: yes
+
+    - name: Copy user-seed.conf to SPLUNK directory
+      copy:
+        src: /app/install/conf/user-seed.conf
+        dest: /app/splunkforwarder/etc/system/local/user-seed.conf
+      become: yes
+
+    - name: Copy log-local.cfg to SPLUNK directory
+      copy:
+        src: /app/install/conf/log-local.cfg
+        dest: /app/splunkforwarder/etc/log-local.cfg
+      become: yes
+
+    - name: Start Splunk
+      shell: source /etc/environment && $SPLUNK/bin/splunk start
+      become: yes
