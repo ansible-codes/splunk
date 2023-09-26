@@ -10,6 +10,18 @@
         create: yes
       become: yes
 
+- name: "Comment out the line"
+  replace:
+    path: /path/to/file
+    regexp: 'Comment me out'
+    replace: '#Comment me out'
+
+- name: "Uncomment the line"
+  replace:
+    path: /path/to/file
+    regexp: '#Uncomment me'
+    replace: 'Uncomment me'
+
     - name: Copy deploymentclient.conf to SPLUNK directory
       copy:
         src: /app/install/conf/deploymentclient.conf
