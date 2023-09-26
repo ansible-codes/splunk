@@ -1,18 +1,16 @@
 ---
-- hosts: splunk_forwarders
-  become: yes
+- name: Stop Splunk
+  hosts: splunk_servers  # This should be the group where your Splunk servers are defined in your inventory
   tasks:
-    - name: Stop Splunk Forwarder
-      command: /apps/splunk/bin/splunk stop
-      args:
-        chdir: /apps/splunk/bin/
 
-    - name: Check Splunk Forwarder Status
-      command: /apps/splunk/bin/splunk status
-      args:
-        chdir: /apps/splunk/bin/
-      register: splunk_status
-      changed_when: false
+    - name: Navigate to Splunk Directory and Stop Splunk
+      command:
+        cmd: ./splunk stop
+        chdir: /app/splunk/bin
+      become: yes  # This is to run the command as sudo. Remove or modify if not necessary.
 
-    - debug:
-        msg: "{{ splunk_status.stdout_lines }}"
+    - name: Verify Splunk Has Stopped
+      shell: ps aux | grep -v grep | grep splunk
+      register: splunk_process
+      failed_when: splunk_process.stdout != ''
+      changed_when: false  # This task is not changing any state, it's just for verification.
