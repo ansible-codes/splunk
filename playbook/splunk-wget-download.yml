@@ -1,0 +1,23 @@
+---
+- name: Download Splunk Forwarder Installation Files
+  hosts: target_servers  # This should be the group where you want to download the files in your inventory
+  tasks:
+
+    - name: Ensure wget is installed
+      package:
+        name: wget
+        state: present
+      become: yes
+
+    - name: Create directory for Splunk installation files
+      file:
+        path: /app/splunk-install-files
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Download Splunk Forwarder Files
+      command: wget https://splunk/splunk/splunkfiles.targz -O /app/splunk-install-files/splunkfiles.targz
+      args:
+        creates: /app/splunk-install-files/splunkfiles.targz
+      become: yes
