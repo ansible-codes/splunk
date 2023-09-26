@@ -1,7 +1,25 @@
 ---
-- name: Download Splunk Forwarder Installation Files
-  hosts: target_servers  # This should be the group where you want to download the files in your inventory
+- name: Check and Create Splunk Conf Directory
+  hosts: target_hosts  # Replace with your target host group or specific hosts
   tasks:
+
+    - name: Check if /app/splunk/install/conf directory exists
+      stat:
+        path: /app/splunk/install/conf
+      register: dir_check
+
+    - name: Create /app/splunk/install/conf directory if not present
+      file:
+        path: /app/splunk/install/conf
+        state: directory
+        mode: '0755'
+      when: not dir_check.stat.exists
+      become: yes  # Ensure the task runs with sudo privileges; remove if not needed
+
+    - name: Log directory already exists
+      debug:
+        msg: "/app/splunk/install/conf directory already exists"
+      when: dir_check.stat.exists
 
     - name: Ensure wget is installed
       package:
