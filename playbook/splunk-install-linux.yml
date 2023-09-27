@@ -14,6 +14,17 @@
         dest: /opt/splunk/files/
         remote_src: no
 
+    - name: Move all content from /app/splunkforwarder/splunk to /app/splunkforwarder/
+      command: mv /app/splunkforwarder/splunk/* /app/splunkforwarder/
+      args:
+        removes: /app/splunkforwarder/splunk/*
+      ignore_errors: yes # This will ignore errors if there are no files to move. Remove this if you want to fail in such a case.
+
+    - name: Remove the directory /app/splunkforwarder/splunk
+      file:
+        path: /app/splunkforwarder/splunk
+        state: absent
+
     - name: Install Splunk
       command: /opt/splunk/files/splunkforwarder/bin/splunk start --accept-license
       become: yes
