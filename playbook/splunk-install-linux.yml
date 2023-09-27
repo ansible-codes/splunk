@@ -65,3 +65,33 @@
 
     - debug:
         msg: "Splunk Forwarder version is: {{ splunk_version.stdout }}"
+
+---
+- name: Check Splunk Installation and Status
+  hosts: splunk_servers
+  tasks:
+    - name: Check if Splunk is installed
+      stat:
+        path: "/opt/splunk/bin/splunk"
+      register: splunk_bin
+
+    - name: Fail if Splunk is not installed
+      fail:
+        msg: "Splunk is not installed on this host"
+      when: not splunk_bin.stat.exists
+
+    - name: Check if Splunk is running
+      command: "/opt/splunk/bin/splunk status"
+      register: splunk_status
+      changed_when: False
+      ignore_errors: True
+
+    - name: Print Splunk status
+      debug:
+        msg: "{{ splunk_status.stdout }}"
+      when: splunk_status.rc == 0
+
+    - name: Print error if Splunk is not running
+      debug:
+        msg: "Splunk does not appear to be running!"
+      when: splunk_status.rc != 0
