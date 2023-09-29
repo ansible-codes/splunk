@@ -1,0 +1,52 @@
+- name: Splunk test
+  hosts: all
+  tasks:
+    - name: export SPLUNK_HOME to .profile
+      ansible.builtin.shell:
+        cmd: export SPLUNK_HOME=/app/splunkforwarder/ >> ~/.profile
+        chdir: app/splunkforwarder/
+
+    - name: create splunk ansible exec log
+      ansible.builtin.shell:
+        cmd: touch /app/splunkforwarder/splunk-ansible-exec.log
+       chdir: app/splunkforwarder/bin/
+
+    - name: splunk stop
+      ansible.builtin.shell:
+        cmd: splunk stop > /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+    
+    - name: splunk start
+      ansible.builtin.shell:
+        cmd: splunk start  >> /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+
+    - name: splunk status
+      ansible.builtin.shell:
+        cmd: splunk status >> /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+
+    - name: splunk restart
+      ansible.builtin.shell:
+       cmd: splunk restart >> /app/splunkforwarder/splunk-ansible-exec.log
+       chdir: app/splunkforwarder/bin/
+
+    - name: splunk version
+      ansible.builtin.shell:
+        cmd: splunk version >> /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+
+    - name: ps splunk
+      ansible.builtin.shell:
+        cmd: ps -ef | grep splunk >> /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+    
+    - name: hostname and date
+      ansible.builtin.shell:
+        cmd: hostname ; date >> /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
+
+    - name: cat log
+      ansible.builtin.shell:
+        cmd: cat /app/splunkforwarder/splunk-ansible-exec.log
+        chdir: app/splunkforwarder/bin/
