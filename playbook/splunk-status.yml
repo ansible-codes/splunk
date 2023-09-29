@@ -1,23 +1,27 @@
----
 - name: Check Splunk Status
-  hosts: your_target_host
-  gather_facts: no  # We don't need facts for this task
+  hosts: all
   tasks:
     - name: Execute splunk status command
-      shell: /app/splunk/bin/splunk status
+      shell: /app/splunkforwarder/bin/splunk status
       register: splunk_status_output
       ignore_errors: yes  # Ignore errors in case Splunk is not installed or running
+
+    - name: Check if Splunk is running
+      fail:
+        msg: "Splunk is not running or splunkd/splunk helpers are not running."
+      when: "'splunkd' not in splunk_status_output.stdout or 'splunk helpers' not in splunk_status_output.stdout"
 
     - name: Display Splunk Status
       debug:
         var: splunk_status_output.stdout_lines
 
-    - name: Set status code
+    - name: Set status to success
       set_fact:
-        status_code: "{{ 0 if splunk_status_output.rc == 0 else 1 }}"
+        status: "Success"
 
 - name: Finish Playbook
-  hosts: localhost
+  hosts: all
   tasks:
     - name: Finish Playbook Execution
       meta: end_play
+      when: status == "Success"
