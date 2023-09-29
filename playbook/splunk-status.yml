@@ -1,0 +1,18 @@
+---
+- name: Check Splunk Status
+  hosts: all
+  tasks:
+    - name: Execute splunk status command
+      shell: /app/splunkforward/bin/splunk status
+      register: splunk_status_output
+      ignore_errors: yes  # Ignore errors in case Splunk is not installed or running
+
+    - name: Display Splunk Status
+      debug:
+        var: splunk_status_output.stdout_lines
+
+- name: Finish Playbook
+  hosts: localhost
+  tasks:
+    - name: Finish Playbook Execution
+      meta: end_play
