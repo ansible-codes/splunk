@@ -1,0 +1,67 @@
+<dashboard>
+  <label>System Status Dashboard</label>
+  <description>This dashboard displays information about system uptime, running services, and PIDs collected from all servers.</description>
+
+  <row>
+    <!-- Time Range Picker -->
+    <input type="time" token="time_range" default="24h">
+      <label>Time Range</label>
+    </input>
+  </row>
+
+  <row>
+    <!-- Uptime Panel -->
+    <panel>
+      <title>System Uptime</title>
+      <search>
+        <query>
+          index=your_index_name sourcetype=your_sourcetype_name $time_range$
+          | stats latest(uptime) as uptime by host
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <single>
+        <field name="uptime" />
+      </single>
+    </panel>
+
+    <!-- Running Services Panel -->
+    <panel>
+      <title>Running Services</title>
+      <search>
+        <query>
+          index=your_index_name sourcetype=your_sourcetype_name $time_range$
+          | stats latest(running_services) as running_services by host
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <table>
+        <fieldForRow>
+          <name>running_services</name>
+        </fieldForRow>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <!-- PIDs Panel -->
+    <panel>
+      <title>Process IDs (PIDs)</title>
+      <search>
+        <query>
+          index=your_index_name sourcetype=your_sourcetype_name $time_range$
+          | stats latest(pids) as pids by host
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <table>
+        <fieldForRow>
+          <name>pids</name>
+        </fieldForRow>
+      </table>
+    </panel>
+  </row>
+</dashboard>
