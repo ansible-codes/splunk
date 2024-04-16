@@ -1,0 +1,30 @@
+---
+- name: Execute Shell Script and Clean Logs
+  hosts: your_target_hosts  # Specify your target hosts here
+  vars:
+    interval: "{{ interval }}"  # This variable will be provided from Ansible Tower
+
+  tasks:
+    - name: List all log files in /app/splunk/script/
+      shell: "ls /app/splunk/script/*.log"
+      register: log_files
+      ignore_errors: yes  # Ignore errors if no log files exist
+
+    - name: Display list of log files
+      debug:
+        msg: "Log files: {{ log_files.stdout_lines }}"
+
+    - name: Clean all .log files from /app/splunk/script/
+      file:
+        path: "/app/splunk/script/"
+        recurse: yes
+        state: absent
+        include: "*.log"
+
+    - name: Schedule the shell script execution
+      cron:
+        name: "Run splunk_sar_log_collect.sh every {{ interval }} minutes"
+        minute: "*/{{ interval }}"
+        job: "/app/splunk/script/splunk_sar_log_collect.sh"
+        state: present
+        user: root
