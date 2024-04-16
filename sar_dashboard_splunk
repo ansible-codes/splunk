@@ -1,0 +1,83 @@
+<dashboard>
+  <label>Linux Command Logs Dashboard</label>
+  <description>This dashboard shows the results of Linux commands from .log files using the index 'ti_u_griffin' and all types of data.</description>
+  
+  <row>
+    <!-- Time Range Picker -->
+    <input type="time" token="time_range" default="24h">
+      <label>Time Range</label>
+    </input>
+  </row>
+
+  <row>
+    <!-- Search Panel for CPU Usage -->
+    <panel>
+      <title>CPU Usage</title>
+      <search>
+        <query>
+          index=ti_u_griffin sourcetype=linux_sar_cpu $time_range$
+          | timechart span=1m avg(CPU_Usage) as Avg_CPU_Usage
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <visualization type="line">
+        <title>Average CPU Usage</title>
+        <yaxis title="CPU Usage (%)" />
+      </visualization>
+    </panel>
+
+    <!-- Search Panel for Memory Usage -->
+    <panel>
+      <title>Memory Usage</title>
+      <search>
+        <query>
+          index=ti_u_griffin sourcetype=linux_sar_memory $time_range$
+          | timechart span=1m avg(Memory_Usage) as Avg_Memory_Usage
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <visualization type="line">
+        <title>Average Memory Usage</title>
+        <yaxis title="Memory Usage (MB)" />
+      </visualization>
+    </panel>
+  </row>
+
+  <row>
+    <!-- Search Panel for Disk Usage -->
+    <panel>
+      <title>Disk Usage</title>
+      <search>
+        <query>
+          index=ti_u_griffin sourcetype=linux_sar_disk $time_range$
+          | timechart span=1m avg(Disk_Usage) as Avg_Disk_Usage
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <visualization type="line">
+        <title>Average Disk Usage</title>
+        <yaxis title="Disk Usage (MB)" />
+      </visualization>
+    </panel>
+
+    <!-- Search Panel for Network Usage -->
+    <panel>
+      <title>Network Usage</title>
+      <search>
+        <query>
+          index=ti_u_griffin sourcetype=linux_sar_network $time_range$
+          | timechart span=1m avg(Network_Usage) as Avg_Network_Usage
+        </query>
+        <earliest>$time_range.earliest$</earliest>
+        <latest>$time_range.latest$</latest>
+      </search>
+      <visualization type="line">
+        <title>Average Network Usage</title>
+        <yaxis title="Network Usage (MB)" />
+      </visualization>
+    </panel>
+  </row>
+</dashboard>
