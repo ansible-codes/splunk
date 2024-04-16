@@ -1,4 +1,3 @@
----
 - name: Execute Shell Script and Clean Logs
   hosts: your_target_hosts  # Specify your target hosts here
   vars:
@@ -21,10 +20,13 @@
         state: absent
         include: "*.log"
 
-    - name: Schedule the shell script execution
-      cron:
-        name: "Run splunk_sar_log_collect.sh every {{ interval }} minutes"
-        minute: "*/{{ interval }}"
-        job: "/app/splunk/script/splunk_sar_log_collect.sh"
-        state: present
-        user: root
+    - name: Execute splunk_sar_log.sh script
+      shell: "/app/splunk/script/splunk_sar_log.sh"
+      args:
+        executable: /bin/bash  # Optional: specify the shell to use (default is /bin/sh)
+      register: script_output
+      ignore_errors: yes  # Optional: Ignore errors if script execution fails
+
+    - name: Display script output
+      debug:
+        msg: "Script output: {{ script_output.stdout }}"
