@@ -1,0 +1,12 @@
+---
+- name: Execute Shell Scripts
+  hosts: all  # You can specify a specific group or host
+  tasks:
+    - name: Execute Script 1
+      command: "/path/to/your/script1.sh"
+
+    - name: Execute Script 2
+      command: "/path/to/your/script2.sh"
+
+    - name: Execute Script 3
+      command: "/path/to/your/script3.sh"
