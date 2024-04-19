@@ -1,0 +1,18 @@
+- name: Run shell script with dynamic command
+  hosts: all  # Define the host group where the playbook will run
+  tasks:
+    - name: Execute shell script with dynamic command
+      shell: |
+        bash /app/splunk/script/shell_script.sh {{ dynamic_command }}
+      args:
+        creates: /app/splunk/script/splunk_log_dynamic.log
+      register: script_output
+      ignore_errors: yes
+
+    - name: Verify execution
+      debug:
+        msg: "Script output: {{ script_output.stdout }}"
+
+    - name: Notify completion
+      debug:
+        msg: "Playbook executed successfully. Log generated at /app/splunk/script/splunk_log_dynamic.log."
