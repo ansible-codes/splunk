@@ -15,10 +15,10 @@
 
     - name: Clean all .log files from /app/splunk/script/
       file:
-        path: "/app/splunk/script/"
-        recurse: yes
+        path: "{{ item }}"
         state: absent
-        include: "*.log"
+      with_items: "{{ log_files.stdout_lines }}"
+      when: log_files.stdout_lines | length > 0  # Execute only if log files are present
 
     - name: Execute splunk_sar_log.sh script
       shell: "/app/splunk/script/splunk_sar_log.sh"
@@ -26,7 +26,9 @@
         executable: /bin/bash  # Optional: specify the shell to use (default is /bin/sh)
       register: script_output
       ignore_errors: yes  # Optional: Ignore errors if script execution fails
+      when: log_files.stdout_lines | length > 0  # Execute only if log files are present
 
-    - name: Display script output
+    - name: Display script output if available
       debug:
-        msg: "Script output: {{ script_output.stdout }}"
+        msg: "Script output: {{ script_output.stdout | default('No output from script.') }}"
+      when: script_output.stdout is defined  # Display output only if available
