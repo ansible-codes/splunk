@@ -14,10 +14,8 @@
       debug:
         msg: "Log files: {{ log_files.stdout_lines }}"
 
-    - name: Clean all .log files from {{ log_path }}
-      file:
-        path: "{{ item }}"
-        state: absent
+    - name: Empty all log files in {{ log_path }}
+      shell: "truncate -s 0 {{ item }}"
       with_items: "{{ log_files.stdout_lines }}"
       when: log_files.stdout_lines | length > 0  # Execute only if log files are present
 
