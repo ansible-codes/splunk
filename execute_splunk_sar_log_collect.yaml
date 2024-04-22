@@ -2,10 +2,11 @@
   hosts: your_target_hosts  # Specify your target hosts here
   vars:
     interval: "{{ interval }}"  # This variable will be provided from Ansible Tower
+    log_path: "/app/splunk/script/"
 
   tasks:
-    - name: List all log files in /app/splunk/script/
-      shell: "ls /app/splunk/script/*.log"
+    - name: List all log files in {{ log_path }}
+      shell: "ls {{ log_path }}*.log"
       register: log_files
       ignore_errors: yes  # Ignore errors if no log files exist
 
@@ -13,7 +14,7 @@
       debug:
         msg: "Log files: {{ log_files.stdout_lines }}"
 
-    - name: Clean all .log files from /app/splunk/script/
+    - name: Clean all .log files from {{ log_path }}
       file:
         path: "{{ item }}"
         state: absent
@@ -21,7 +22,7 @@
       when: log_files.stdout_lines | length > 0  # Execute only if log files are present
 
     - name: Execute splunk_sar_log.sh script
-      shell: "/app/splunk/script/splunk_sar_log.sh"
+      shell: "{{ log_path }}splunk_sar_log.sh"
       args:
         executable: /bin/bash  # Optional: specify the shell to use (default is /bin/sh)
       register: script_output
