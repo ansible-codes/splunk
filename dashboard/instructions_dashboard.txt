@@ -1,0 +1,62 @@
+
+Creating dashboards in Splunk Enterprise to monitor Linux systems involves collecting data from the Linux hosts using Splunk's Universal Forwarder, parsing that data, and then visualizing it on dashboards. Here's a basic outline of steps you'd follow:
+
+Install Splunk Universal Forwarder on your Linux hosts:
+Download the appropriate version for Red Hat 7 and Red Hat 9 from the Splunk website.
+Install and configure the forwarder to send data to your Splunk Enterprise instance.
+Configure Inputs:
+Configure inputs on Splunk Universal Forwarder to monitor system logs, performance metrics, etc., and send them to Splunk.
+Create Searches and Queries:
+Create searches and queries in Splunk's search language (SPL) to extract relevant data from the logs and indexes.
+Create Dashboards:
+Use Splunk's dashboard editor to create visualizations and panels to represent the data.
+Here's a basic example of the code you might use:
+
+Inputs.conf (on the forwarder):
+ini
+Copy code
+[monitor:///var/log/messages]
+sourcetype = syslog
+
+[monitor:///var/log/secure]
+sourcetype = secure
+
+[monitor:///var/log/httpd/access_log]
+sourcetype = access_combined
+Props.conf (on the indexer):
+ini
+Copy code
+[source::.../messages]
+TRANSFORMS-set = setnull, setparsing, sethosts
+
+[source::.../secure]
+TRANSFORMS-set = setnull, setparsing, sethosts
+
+[source::.../access_log]
+TRANSFORMS-set = setnull, setparsing, sethosts
+
+[setnull]
+REGEX = .
+DEST_KEY = queue
+FORMAT = nullQueue
+
+[setparsing]
+REGEX = .
+DEST_KEY = _MetaData:Index
+FORMAT = default
+
+[sethosts]
+REGEX = .
+DEST_KEY = MetaData:Sourcetype
+FORMAT = host::RedHat7 or host::RedHat9
+Searches and Queries:
+spl
+Copy code
+index=main sourcetype=syslog OR sourcetype=secure OR sourcetype=access_combined
+| stats count by host, sourcetype
+Dashboard Panels:
+Line chart showing system resource usage over time.
+Pie chart showing distribution of log events by severity.
+Table showing top processes by CPU or memory usage.
+Bar chart showing disk usage across hosts.
+etc.
