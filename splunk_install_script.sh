@@ -1,32 +1,28 @@
 #!/bin/bash
 
-# Define Splunk Universal Forwarder download URL
-SPLUNK_URL="https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=9.1.2&product=universalforwarder&filename=splunkforwarder-9.1.2-9849e60b9e5b-Linux-x86_64.tgz&wget=true"
+# Define the path to the Splunk Universal Forwarder package
+FORWARDER_PACKAGE="/tmp/splunkforwarder-9.1.2_install/splunkforwarder-9.1.2-9849e60b9e5b-Linux-x86_64.tgz"
 
 # Define installation directory
 INSTALL_DIR="/opt/splunkforwarder"
 
-# Download Splunk Universal Forwarder
-echo "Downloading Splunk Universal Forwarder..."
-wget -O splunkforwarder.tgz "$SPLUNK_URL"
+# Stop the existing Splunk Universal Forwarder
+echo "Stopping Splunk Universal Forwarder..."
+sudo "$INSTALL_DIR/bin/splunk" stop
 
-# Extract Splunk Universal Forwarder
-echo "Extracting Splunk Universal Forwarder..."
-sudo tar -xzf splunkforwarder.tgz -C /opt
+# Backup the existing installation directory
+echo "Backing up existing installation directory..."
+sudo mv "$INSTALL_DIR" "$INSTALL_DIR.bak"
+
+# Extract the new version
+echo "Extracting Splunk Universal Forwarder 9.1.2..."
+sudo tar -xzf "$FORWARDER_PACKAGE" -C /opt
 
 # Rename the extracted directory
-sudo mv /opt/splunkforwarder-9.1.2-9849e60b9e5b-Linux-x86_64 "$INSTALL_DIR"
+sudo mv "/opt/splunkforwarder-9.1.2-9849e60b9e5b" "$INSTALL_DIR"
 
-# Start Splunk Universal Forwarder
-echo "Starting Splunk Universal Forwarder..."
+# Start the new version
+echo "Starting Splunk Universal Forwarder 9.1.2..."
 sudo "$INSTALL_DIR/bin/splunk" start --accept-license --answer-yes
 
-# Enable Splunk Universal Forwarder to start on boot
-echo "Enabling Splunk Universal Forwarder to start on boot..."
-sudo "$INSTALL_DIR/bin/splunk" enable boot-start
-
-# Clean up downloaded files
-echo "Cleaning up downloaded files..."
-rm splunkforwarder.tgz
-
-echo "Splunk Universal Forwarder installation completed."
+echo "Splunk Universal Forwarder upgrade to version 9.1.2 completed."
