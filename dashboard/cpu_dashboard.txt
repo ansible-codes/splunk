@@ -12,3 +12,6 @@ index=* sourcetype=sar_cpu
 | table host time user nice system iowait idle
 | timechart span=1m avg(user) as "User CPU", avg(nice) as "Nice CPU", avg(system) as "System CPU", avg(iowait) as "IOWait CPU", avg(idle) as "Idle CPU" by host
 
+index=ti-u_griffin sourcetype="griffin:cpu_usage.log"
+| stats avg(user) as avg_user, avg(system) as avg_system, avg(idle) as avg_idle by host
+| stats avg(avg_user) as "Average User CPU", avg(avg_system) as "Average System CPU", avg(avg_idle) as "Average Idle CPU"
