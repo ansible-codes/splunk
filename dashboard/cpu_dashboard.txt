@@ -1,0 +1,14 @@
+index=* sourcetype=sar_cpu
+| rex field=_raw "(\d{2}:\d{2}:\d{2})\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)"
+| eval time=strftime(_time, "%H:%M:%S")
+| eval user=tonumber(replace('$2$', ",", ".")), nice=tonumber(replace('$3$', ",", ".")), system=tonumber(replace('$4$', ",", ".")), iowait=tonumber(replace('$5$', ",", ".")), idle=tonumber(replace('$6$', ",", "."))
+| table time user nice system iowait idle
+
+
+index=* sourcetype=sar_cpu
+| rex field=_raw "(\d{2}:\d{2}:\d{2})\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)"
+| eval time=strftime(_time, "%H:%M:%S")
+| eval user=tonumber(replace('$2$', ",", ".")), nice=tonumber(replace('$3$', ",", ".")), system=tonumber(replace('$4$', ",", ".")), iowait=tonumber(replace('$5$', ",", ".")), idle=tonumber(replace('$6$', ",", "."))
+| table host time user nice system iowait idle
+| timechart span=1m avg(user) as "User CPU", avg(nice) as "Nice CPU", avg(system) as "System CPU", avg(iowait) as "IOWait CPU", avg(idle) as "Idle CPU" by host
+
