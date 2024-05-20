@@ -15,3 +15,34 @@ index=* sourcetype=sar_cpu
 index=ti-u_griffin sourcetype="griffin:cpu_usage.log"
 | stats avg(user) as avg_user, avg(system) as avg_system, avg(idle) as avg_idle by host
 | stats avg(avg_user) as "Average User CPU", avg(avg_system) as "Average System CPU", avg(avg_idle) as "Average Idle CPU"
+
+# Copyright (C) 2018 Splunk Inc. All Rights Reserved.
+[script://./bin/vmstat.sh]
+index = unix
+interval = 60
+sourcetype = vmstat
+source = vmstat
+disabled = 0
+
+[script://./bin/iostat.sh]
+index = unix
+interval = 60
+sourcetype = iostat
+source = iostat
+disabled = 0
+
+[script://./bin/ps.sh]
+index = unix
+interval = 30
+sourcetype = ps
+source = ps
+disabled = 0
+
+[script://./bin/top.sh]
+index = unix
+interval = 60
+sourcetype = top
+source = top
+disabled = 0
+
+...
