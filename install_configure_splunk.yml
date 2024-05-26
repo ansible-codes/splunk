@@ -1,0 +1,63 @@
+---
+- name: Install, Update, and Configure Splunk Forwarder
+  hosts: all
+  become: yes
+  vars:
+    splunk_package: /path/to/splunkforwarder-<version>-Linux-x86_64.tgz
+    splunk_install_path: /app/splunkforwarder
+    splunk_monitor_logs:
+      - /var/log/messages
+      - /var/log/secure
+      - /var/log/httpd/access_log
+      - /var/log/httpd/error_log
+
+  tasks:
+    - name: Ensure required packages are installed
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - tar
+        - gzip
+
+    - name: Create Splunk installation directory if it does not exist
+      file:
+        path: "{{ splunk_install_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract Splunk Forwarder package
+      unarchive:
+        src: "{{ splunk_package }}"
+        dest: "{{ splunk_install_path }}"
+        remote_src: yes
+
+    - name: Ensure Splunk service scripts have executable permissions
+      file:
+        path: "{{ splunk_install_path }}/splunk/bin/splunk"
+        mode: '0755'
+      when: ansible_os_family == "RedHat"
+
+    - name: Start Splunk Forwarder on first install
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk start --accept-license --answer-yes --no-prompt"
+      args:
+        creates: "{{ splunk_install_path }}/splunk/bin/splunk"
+
+    - name: Restart Splunk Forwarder to apply any updates
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk restart"
+
+    - name: Create inputs.conf for monitoring logs
+      copy:
+        dest: "{{ splunk_install_path }}/splunk/etc/system/local/inputs.conf"
+        content: |
+          [default]
+          host = {{ ansible_hostname }}
+          
+          {% for log in splunk_monitor_logs %}
+          [monitor://{{ log }}]
+          disabled = false
+          index = main
+          {% endfor %}
+
+    - name: Restart Splunk Forwarder to apply log monitoring configuration
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk restart"
