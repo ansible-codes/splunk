@@ -1,0 +1,45 @@
+---
+- name: Manage Splunk Forwarder
+  hosts: all
+  become: yes
+  vars:
+    splunk_install_path: /app/splunkforwarder
+    splunk_service: splunk
+
+  tasks:
+    - name: Ensure Splunk service script is available
+      stat:
+        path: "{{ splunk_install_path }}/splunk/bin/splunk"
+      register: splunk_script
+
+    - name: Stop Splunk Forwarder
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk stop"
+      when: splunk_script.stat.exists
+      tags:
+        - stop
+
+    - name: Start Splunk Forwarder
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk start"
+      when: splunk_script.stat.exists
+      tags:
+        - start
+
+    - name: Restart Splunk Forwarder
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk restart"
+      when: splunk_script.stat.exists
+      tags:
+        - restart
+
+    - name: Check Splunk Forwarder status
+      shell: "{{ splunk_install_path }}/splunk/bin/splunk status"
+      when: splunk_script.stat.exists
+      register: splunk_status
+      tags:
+        - status
+
+    - name: Display Splunk Forwarder status
+      debug:
+        msg: "{{ splunk_status.stdout }}"
+      when: splunk_script.stat.exists
+      tags:
+        - status
