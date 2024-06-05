@@ -1,0 +1,125 @@
+- hosts: all
+  vars:
+    splunk_path: "/app/splunkforwarder/"
+    splunk_user: "userTest"
+    splunk_group: "userGROUP"
+  tasks:
+    - name: Restart Splunk Service
+      block:
+        - name: Stop Splunk Service
+          command: "{{ splunk_path }}/bin/splunk stop"
+          ignore_errors: yes
+
+        - name: Start Splunk Service
+          command: "{{ splunk_path }}/bin/splunk start"
+          register: splunk_start_result
+          ignore_errors: yes
+
+        - name: Check Splunk Status After Start
+          command: "{{ splunk_path }}/bin/splunk status"
+          register: splunk_status_result
+          retries: 3
+          delay: 10
+          until: splunk_status_result.rc == 0
+
+    - name: Handle Stuck Splunk Process
+      fail:
+        msg: "Splunk start process is stuck on host {{ inventory_hostname }}"
+      when: splunk_start_result is failed
+
+    - name: Check Splunk Version
+      command: "{{ splunk_path }}/bin/splunk version"
+      register: splunk_version
+
+    - name: Display Splunk Version
+      debug:
+        var: splunk_version.stdout
+
+    - name: Check Splunk Directory Permissions
+      block:
+        - name: Get Splunk Directory Ownership
+          command: "stat -c '%U:%G' {{ splunk_path }}"
+          register: dir_ownership
+
+        - name: Fail if Ownership is Incorrect
+          fail:
+            msg: "Incorrect permissions on {{ splunk_path }}. Expected {{ splunk_user }}:{{ splunk_group }}, got {{ dir_ownership.stdout }}"
+          when: dir_ownership.stdout != "{{ splunk_user }}:{{ splunk_group }}"
+
+    - name: Ensure Splunk is Running
+      block:
+        - name: Check Splunk Status
+          command: "{{ splunk_path }}/bin/splunk status"
+          register: splunk_final_status
+
+        - name: Check Final Status
+          fail:
+            msg: "Splunk is not running on host {{ inventory_hostname }}"
+          when: splunk_final_status.rc != 0
+      rescue:
+        - name: Mark Host as Failed
+          fail:
+            msg: "Host {{ inventory_hostname }} has failed due to a previous task."
+
+- hosts: all
+  vars:
+    splunk_path: "/app/splunkforwarder/"
+    splunk_user: "userTest"
+    splunk_group: "userGROUP"
+  tasks:
+    - name: Restart Splunk Service
+      block:
+        - name: Stop Splunk Service
+          command: "{{ splunk_path }}/bin/splunk stop"
+          ignore_errors: yes
+
+        - name: Start Splunk Service
+          command: "{{ splunk_path }}/bin/splunk start"
+          register: splunk_start_result
+          ignore_errors: yes
+
+        - name: Check Splunk Status After Start
+          command: "{{ splunk_path }}/bin/splunk status"
+          register: splunk_status_result
+          retries: 3
+          delay: 10
+          until: splunk_status_result.rc == 0
+
+    - name: Handle Stuck Splunk Process
+      fail:
+        msg: "Splunk start process is stuck on host {{ inventory_hostname }}"
+      when: splunk_start_result is failed
+
+    - name: Check Splunk Version
+      command: "{{ splunk_path }}/bin/splunk version"
+      register: splunk_version
+
+    - name: Display Splunk Version
+      debug:
+        var: splunk_version.stdout
+
+    - name: Check Splunk Directory Permissions
+      block:
+        - name: Get Splunk Directory Ownership
+          command: "stat -c '%U:%G' {{ splunk_path }}"
+          register: dir_ownership
+
+        - name: Fail if Ownership is Incorrect
+          fail:
+            msg: "Incorrect permissions on {{ splunk_path }}. Expected {{ splunk_user }}:{{ splunk_group }}, got {{ dir_ownership.stdout }}"
+          when: dir_ownership.stdout != "{{ splunk_user }}:{{ splunk_group }}"
+
+    - name: Ensure Splunk is Running
+      block:
+        - name: Check Splunk Status
+          command: "{{ splunk_path }}/bin/splunk status"
+          register: splunk_final_status
+
+        - name: Check Final Status
+          fail:
+            msg: "Splunk is not running on host {{ inventory_hostname }}"
+          when: splunk_final_status.rc != 0
+      rescue:
+        - name: Mark Host as Failed
+          fail:
+            msg: "Host {{ inventory_hostname }} has failed due to a previous task."
